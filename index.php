@@ -32,6 +32,8 @@ $app->get('/opo[/{judule}]',function($request, $response, $datae){
 });
 
 
+
+/* UNTUK CEK REQUEST DAN RESPONSE YANG DIMILIKI SLIM */
 #untuk ngecek method pake request
 $app->get('/method', function($request, $response){
   echo $request->getMethod();
@@ -46,6 +48,56 @@ $app->get('/fungsi', function($request, $response){
 $app->get('/header', function($request, $response){
   die(var_dump($request->getHeaders())); #-> menggunakan var_dump karena array
 });
+
+/* END */
+
+
+
+#Container untuk membuat semacam fungsi / function
+$container = $app->getContainer();
+
+#buat container untuk database PDO
+$container['db'] = function(){
+    return new PDO('mysql:host=localhost;dbname=dinkop', 'root', '');
+};
+
+#menampilkan data dari database dinkop table koperasi
+$app->get('/koperasi', function($request, $response, $datae){
+    $hasil = $this->db->query("select * from koperasi")->fetchAll(PDO::FETCH_ASSOC);
+    $json=json_encode($hasil);
+		print_r($json);
+});
+
+$app->get('/koperasi/{cif}', function($request, $response, $datae){
+  $cif=$datae['cif'];
+  $hasil = $this->db->query("select * from koperasi where cif=$cif")->fetchAll(PDO::FETCH_ASSOC);
+  $json=json_encode($hasil);
+	print_r($json);
+});
+
+
+#input data dengan POST
+$app->post('/koperasi', function($request, $response){
+  $nama = $_POST['namae'];
+  echo 'Input '.$nama;
+});
+
+#update data dengan PUT
+$app->put('/koperasi', function($request, $response){
+  $data = $request->getParsedBody();
+  $nama=$data['namae'];
+  echo 'Update '.$nama;
+});
+
+#hapus data dengan DELETE
+$app->delete('/koperasi', function($request, $response){
+  $data = $request->getParsedBody();
+  $nama=$data['namae'];
+  echo 'Hapus '.$nama;
+});
+
+
+
 
 //jalankan aplikasi Slim
 $app->run();
